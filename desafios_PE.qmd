@@ -1,18 +1,25 @@
 ---
-title: "Probabilidade e Estatística 2023"
+title: ""
+format: html
 ---
+
+::: {style="text-align:center"} 
+<h1>Probabilidade e Estatística 2023</h1>
+:::
 
 ![](images/ita.jpg){fig-align="center" width="200"}
 
-***Professor**: Mauri Aparecido de Oliveira*
-
-***Aluno***: Alexandre A. A. M. de Abreu
-
+::: {style="text-align:center; font-size:20px;"}
 **Instituto Tecnológico de Aeronáutica**
+
+**Professor**: Mauri Aparecido de Oliveira
+
+**Aluno**: Alexandre A. A. M. de Abreu
+:::
 
 ## Desafio 1
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Quarto [enables you]{style="color:red;"} to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
 ```{r}
 1 + 1
