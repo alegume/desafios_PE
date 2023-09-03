@@ -28,7 +28,7 @@ Se a doença for **A** e medicar, a cura ocorrerá e a este evento associamos um
 
 #### A) Utilizando o critério do VE, recomende o procedimento a seguir.
 
-#### 
+Inicialmente, importa-se as bibliotecas necessárias e definem-se os dados para a criação da árvore de decisão.
 
 ```{r}
 # warning = false
@@ -39,46 +39,50 @@ library(dplyr)
 library(usethis)
 library(devtools)
 library(DiagrammeR)
-
 # Dados do problema instanciados como nós da árvore
 node=as.Node(yaml.load("
 name: Medicar
 type: decision
-Litigate:
+VE: -220
+Sim:
     type: chance
-    name: Medicar321
-    penwidth: 1
-    Prove negligence, Win Case:
-        type: chance
-        p: 0.60
-        penwidth: 3
-        High damages:
-            type: terminal
-            p: 0.30
-            payoff: 2900000
-            penwidth: 1
-        Medium damages:
-            type: terminal
-            p: 0.40
-            payoff: 1900000
-            penwidth: 1
-        Low damages:
-            type: terminal
-            p: 0.30
-            payoff: 900000
-            penwidth: 2
-    Fail to prove negligence:
+    desc: Doença
+    penwidth: 2
+    VE: -220
+    A:
         type: terminal
-        p: 0.40
-        payoff: -100000
-        penwidth: 1
-Settlement Offer:
-    type: terminal
-    payoff: 1000000"))
+        p: 0.1
+        payoff: 500
+        penwidth: 0.5
+    B:
+        type: terminal
+        p: 0.9
+        payoff: -300
+        penwidth: 0.5
+Não:
+    type: chance
+    desc: Doença
+    payoff: -550
+    penwidth: 0.5
+    VE: -550
+    A:
+        type: terminal
+        p: 0.1
+        payoff: -10000
+        penwidth: 0.5
+    B:
+        type: terminal
+        p: 0.9
+        payoff: 500
+        penwidth: 0.5
+"))
+```
 
+Na sequência, definem-se as funções utilitárias para definir estilos e demais confirações da árvore de decisão.
 
+```{r}
 # Função para definir nome dos nós
-GetNodeLabel = function(node) switch(node$type, terminal = format(node$payoff, scientific = FALSE, big.mark = ","),node$name)
+GetNodeLabel = function(node) switch(node$type, terminal = format(node$payoff, scientific = FALSE, big.mark = ","),  paste0(node$name, "\n[", node$VE, "]"))
 # Função para definir valores nas arestas
 GetEdgeLabel = function(node) {
   if (isNotRoot(node) && node$parent$type == 'chance') {
@@ -91,22 +95,18 @@ GetEdgeLabel = function(node) {
 # Funcão para definir o formato dos nós
 GetNodeShape = function(node) switch(node$type, decision = "box", chance = "circle", terminal = "none")
 # Funcão para definir o estilo das arestas
-GetArrowHead = function(node) switch(node$type, terminal = "oinv", "none")
+GetArrowHead = function(node) switch(node$type, terminal = "oinv", chance = "normal",  "none")
 # Funcão para definir espessura das arestas
 GetPenWidth = function(node) {node$penwidth}
 
-
+# Definir os estilos
 SetEdgeStyle(node, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth)
-SetNodeStyle(node, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape)
-
+SetNodeStyle(node, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize=T, fontsize = 9)
+# Renderizar a árvore
 ToDiagrammeRGraph(node,direction = "climb") %>%
   set_global_graph_attrs("layout", "dot", "graph") %>%
   add_global_graph_attrs("rankdir", "LR","graph") %>%
   render_graph()
-```
-
-```{r}
-node$penwidth
 ```
 
 #### B) Calcular o VEdIP.
