@@ -199,7 +199,6 @@ O Valor Esperado com Informação Perfeita (VEcIP) e Valor Esperado da Informaç
 # pb <- 0.9       # Probabilidade da doença ser B
 VEcIP <- pa * v_am + pb * v_bnm
 VEdIP = VEcIP - VE.SIM
-VEcIP
 VEdIP
 ```
 
@@ -209,4 +208,47 @@ Dessa forma, tem-se que **VEdIP = 720**.
 
 ### C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P("A"/A) = 85% e P("NA"/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.
 
-### 
+Inicialmente, podemos considerar as informações do resultado do exame para calcular as probabilidades condicionais relacionadas ao resultado do exame e as probabilidade que resultam das probabilidades *a priori* em conjunção com a qualidade da informação.
+
+```{r}
+pea_a <- 0.85         # P("A"|A)
+peb_b <- 0.95         # P("B"|B)
+peb_a <- 1 - pea_a    # P("B"|A)
+pea_b <- 1 - peb_b    # P("A"|B)
+# Dados 'a priori' + Qualidade
+pea <- pa * pea_a + pb * pea_b  # P("A")
+peb <- pa * peb_a + pb * peb_b  # P("B")
+cat(pea_a, peb_b, peb_a, pea_b, pea, peb)
+```
+
+Usando a regra de Bayes, podemos calculas as probabilidades *a posteriori.*
+
+```{r}
+pa_ea <- (pa * pea_a) / pea   # P(A|"A")
+pb_ea <- (pb * pea_b) / pea   # P(B|"A")
+pa_eb <- (pa * peb_a) / peb   # P(A|"B")
+pb_eb <- (pb * peb_b) / peb   # P(B|"B")
+cat(pa_ea, pb_ea, pa_eb, pb_eb)
+```
+
+Com essas informações, é possível construir a árvore de decisão a seguir.
+
+```{r}
+v_ea_m <- pa_ea * v_am + pb_ea * v_bm     #
+v_ea_nm <- pa_ea * v_anm + pb_ea * v_bnm  #
+
+v_eb_m <- pa_eb * v_am + pb_eb * v_bm     #
+v_eb_nm <- pa_eb * v_anm + pb_eb * v_bnm  #
+
+cat(v_ea_m, v_eb_nm, v_eb_m, v_eb_nm)
+
+VA <- max(v_ea_m, v_ea_nm)
+VA
+
+VB <- max(v_eb_m, v_eb_nm)
+VB
+
+VEcII <- pea * VA + peb * VB
+VEdII <- VEcII - 500
+VEdII
+```
