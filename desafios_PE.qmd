@@ -3,8 +3,8 @@ title: ""
 format: html
 ---
 
-::: {style="text-align:center"} 
-<h1>Probabilidade e Estatística 2023</h1>
+::: {style="text-align:center"}
+<h1>Probabilidade e Estatística - Desafio 1</h1>
 :::
 
 ![](images/ita.jpg){fig-align="center" width="200"}
@@ -17,16 +17,98 @@ format: html
 **Aluno**: Alexandre A. A. M. de Abreu
 :::
 
-## Desafio 1
+## Paciente
 
-Quarto [enables you]{style="color:red;"} to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Um paciente apresenta um conjunto de sintomas que podem ser enquadrados em dois tipos de doenças, conforme apresentado a seguir.
+
+**DOENÇA A:** Grave. Deve ser medicada senão as consequências são graves. Os remédios provocam efeitos colaterais.\
+**DOENÇA B:** Sem nenhuma gravidade. A cura ocorre naturalmente. Exige apenas repouso.
+
+Se a doença for **A** e medicar, a cura ocorrerá e a este evento associamos um valor de **+5.000**. Entretanto, se não medicar o quadro se complicará e a este evento associamos o valor **--10.000**. A primeira análise da situação conduz a uma probabilidade de **10%** da doença ser **A**. Se a doença for **B** e medicar, aparecerão efeitos colaterais indesejáveis e a este evento associamos o valor **--300**. A não medicar e esperar que os sintomas passem sozinhos associamos o valor **+500**.
+
+#### A) Utilizando o critério do VE, recomende o procedimento a seguir.
+
+#### 
 
 ```{r}
-1 + 1
+# warning = false
+# Bibliotecas necessárias para criar árvores 
+library(data.tree)
+library(yaml)
+library(dplyr)
+library(usethis)
+library(devtools)
+library(DiagrammeR)
+
+# Dados do problema instanciados como nós da árvore
+node=as.Node(yaml.load("
+name: Medicar
+type: decision
+Litigate:
+    type: chance
+    name: Medicar321
+    penwidth: 1
+    Prove negligence, Win Case:
+        type: chance
+        p: 0.60
+        penwidth: 3
+        High damages:
+            type: terminal
+            p: 0.30
+            payoff: 2900000
+            penwidth: 1
+        Medium damages:
+            type: terminal
+            p: 0.40
+            payoff: 1900000
+            penwidth: 1
+        Low damages:
+            type: terminal
+            p: 0.30
+            payoff: 900000
+            penwidth: 2
+    Fail to prove negligence:
+        type: terminal
+        p: 0.40
+        payoff: -100000
+        penwidth: 1
+Settlement Offer:
+    type: terminal
+    payoff: 1000000"))
+
+
+# Função para definir nome dos nós
+GetNodeLabel = function(node) switch(node$type, terminal = format(node$payoff, scientific = FALSE, big.mark = ","),node$name)
+# Função para definir valores nas arestas
+GetEdgeLabel = function(node) {
+  if (isNotRoot(node) && node$parent$type == 'chance') {
+    label = paste0(node$name, " (", node$p, ")")
+  } else {
+    label = node$name
+  }
+  return (label)
+}
+# Funcão para definir o formato dos nós
+GetNodeShape = function(node) switch(node$type, decision = "box", chance = "circle", terminal = "none")
+# Funcão para definir o estilo das arestas
+GetArrowHead = function(node) switch(node$type, terminal = "oinv", "none")
+# Funcão para definir espessura das arestas
+GetPenWidth = function(node) {node$penwidth}
+
+
+SetEdgeStyle(node, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth)
+SetNodeStyle(node, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape)
+
+ToDiagrammeRGraph(node,direction = "climb") %>%
+  set_global_graph_attrs("layout", "dot", "graph") %>%
+  add_global_graph_attrs("rankdir", "LR","graph") %>%
+  render_graph()
 ```
 
 ```{r}
-factorial(6)
+node$penwidth
 ```
 
-\
+#### B) Calcular o VEdIP.
+
+#### C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P("A"/A) = 85% e P("NA"/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.
