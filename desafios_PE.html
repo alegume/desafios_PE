@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pt-BR" xml:lang="pt-BR"><head>
 
 <meta charset="utf-8">
 <meta name="generator" content="quarto-1.3.450">
@@ -104,113 +104,197 @@ Probabilidade e Estatística - Desafio 1
 <p><strong>DOENÇA A:</strong> Grave. Deve ser medicada senão as consequências são graves. Os remédios provocam efeitos colaterais.<br>
 <strong>DOENÇA B:</strong> Sem nenhuma gravidade. A cura ocorre naturalmente. Exige apenas repouso.</p>
 <p>Se a doença for <strong>A</strong> e medicar, a cura ocorrerá e a este evento associamos um valor de <strong>+5.000</strong>. Entretanto, se não medicar o quadro se complicará e a este evento associamos o valor <strong>–10.000</strong>. A primeira análise da situação conduz a uma probabilidade de <strong>10%</strong> da doença ser <strong>A</strong>. Se a doença for <strong>B</strong> e medicar, aparecerão efeitos colaterais indesejáveis e a este evento associamos o valor <strong>–300</strong>. A não medicar e esperar que os sintomas passem sozinhos associamos o valor <strong>+500</strong>.</p>
-<section id="a-utilizando-o-critério-do-ve-recomende-o-procedimento-a-seguir." class="level4">
-<h4 class="anchored" data-anchor-id="a-utilizando-o-critério-do-ve-recomende-o-procedimento-a-seguir.">A) Utilizando o critério do VE, recomende o procedimento a seguir.</h4>
+<section id="a-utilizando-o-critério-do-ve-recomende-o-procedimento-a-seguir." class="level3">
+<h3 class="anchored" data-anchor-id="a-utilizando-o-critério-do-ve-recomende-o-procedimento-a-seguir.">A) Utilizando o critério do VE, recomende o procedimento a seguir.</h3>
 <p>Inicialmente, importa-se as bibliotecas necessárias e definem-se os dados para a criação da árvore de decisão.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># warning = false</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Bibliotecas necessárias para criar árvores </span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.tree)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yaml)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>
-Attaching package: 'dplyr'</code></pre>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bibliotecas necessárias para criar árvores </span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(data.tree)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yaml)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(usethis)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DiagrammeR)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados do problema instanciados como nós da árvore</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>dados<span class="ot">=</span><span class="fu">as.Node</span>(<span class="fu">yaml.load</span>(<span class="st">"</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="st">name: Medicar</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="st">type: decision</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="st">VE: 230</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="st">Sim:</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="st">    type: chance</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="st">    desc: Doença</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="st">    penwidth: 2</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="st">    VE: 230</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="st">    A:</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.1</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: 5000</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 0.5</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="st">    B:</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.9</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: -300</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 0.5</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a><span class="st">Não:</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a><span class="st">    type: chance</span></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a><span class="st">    desc: Doença</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a><span class="st">    payoff: -550</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a><span class="st">    penwidth: 0.5</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a><span class="st">    VE: -550</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a><span class="st">    A:</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.1</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: -10000</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 0.5</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="st">    B:</span></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.9</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: 500</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 0.5</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>))</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:stats':
-
-    filter, lag</code></pre>
-</div>
-<div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:base':
-
-    intersect, setdiff, setequal, union</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(usethis)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(devtools)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DiagrammeR)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: replacing previous import 'scales::viridis_pal' by
-'viridis::viridis_pal' when loading 'DiagrammeR'</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados do problema instanciados como nós da árvore</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>node<span class="ot">=</span><span class="fu">as.Node</span>(<span class="fu">yaml.load</span>(<span class="st">"</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">name: Medicar</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">type: decision</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">VE: -220</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="st">Sim:</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="st">    type: chance</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">    desc: Doença</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">    penwidth: 1</span></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="st">    VE: -220</span></span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">    A:</span></span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.1</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: 500</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 1</span></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="st">    B:</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.9</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: -300</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 1</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="st">Não:</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="st">    type: chance</span></span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="st">    desc: Doença</span></span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="st">    payoff: -550</span></span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="st">    penwidth: 1</span></span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="st">    VE: -550</span></span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="st">    A:</span></span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.1</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: -10000</span></span>
-<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 1</span></span>
-<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="st">    B:</span></span>
-<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
-<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.9</span></span>
-<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: 500</span></span>
-<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 1</span></span>
-<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a><span class="st">"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>Na sequência, definem-se as funções utilitárias para definir estilos e demais confirações da árvore de decisão.</p>
+<p>Na sequência, definem-se as funções utilitárias para definir estilos e demais configurações da árvore de decisão.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para definir nome dos nós</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>GetNodeLabel <span class="ot">=</span> <span class="cf">function</span>(node) <span class="cf">switch</span>(node<span class="sc">$</span>type, <span class="at">terminal =</span> <span class="fu">format</span>(node<span class="sc">$</span>payoff, <span class="at">scientific =</span> <span class="cn">FALSE</span>, <span class="at">big.mark =</span> <span class="st">","</span>),  <span class="fu">paste0</span>(node<span class="sc">$</span>name, <span class="st">" </span><span class="sc">\n</span><span class="st">"</span>, node<span class="sc">$</span>VE))</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para definir valores nas arestas</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>GetEdgeLabel <span class="ot">=</span> <span class="cf">function</span>(node) {</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">isNotRoot</span>(node) <span class="sc">&amp;&amp;</span> node<span class="sc">$</span>parent<span class="sc">$</span>type <span class="sc">==</span> <span class="st">'chance'</span>) {</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    label <span class="ot">=</span> <span class="fu">paste0</span>(node<span class="sc">$</span>name, <span class="st">"</span><span class="sc">\n</span><span class="st"> ("</span>, node<span class="sc">$</span>p, <span class="st">")"</span>)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    label <span class="ot">=</span> node<span class="sc">$</span>name</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (label)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir o formato dos nós</span></span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>GetNodeShape <span class="ot">=</span> <span class="cf">function</span>(node) <span class="cf">switch</span>(node<span class="sc">$</span>type, <span class="at">decision =</span> <span class="st">"box"</span>, <span class="at">chance =</span> <span class="st">"circle"</span>, <span class="at">terminal =</span> <span class="st">"none"</span>)</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir o estilo das arestas</span></span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>GetArrowHead <span class="ot">=</span> <span class="cf">function</span>(node) <span class="cf">switch</span>(node<span class="sc">$</span>type, <span class="at">terminal =</span> <span class="st">"oinv"</span>, <span class="at">chance =</span> <span class="st">"normal"</span>,  <span class="st">"none"</span>)</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir espessura das arestas</span></span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>GetPenWidth <span class="ot">=</span> <span class="cf">function</span>(node) {node<span class="sc">$</span>penwidth}</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir os estilos</span></span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a><span class="fu">SetEdgeStyle</span>(node, <span class="at">fontname =</span> <span class="st">'helvetica'</span>, <span class="at">label=</span>GetEdgeLabel, <span class="at">arrowhead=</span>GetArrowHead, <span class="at">penwidth=</span>GetPenWidth)</span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="fu">SetNodeStyle</span>(node, <span class="at">fontname =</span> <span class="st">'helvetica'</span>, <span class="at">label =</span> GetNodeLabel, <span class="at">shape =</span> GetNodeShape, <span class="at">fixedsize=</span>T, <span class="at">fontsize =</span> <span class="dv">9</span>)</span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Renderizar a árvore</span></span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ToDiagrammeRGraph</span>(node,<span class="at">direction =</span> <span class="st">"climb"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_global_graph_attrs</span>(<span class="st">"layout"</span>, <span class="st">"dot"</span>, <span class="st">"graph"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_global_graph_attrs</span>(<span class="st">"rankdir"</span>, <span class="st">"LR"</span>,<span class="st">"graph"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">render_graph</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para definir nome dos nós</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>GetNodeLabel <span class="ot">=</span> <span class="cf">function</span>(dados) <span class="cf">switch</span>(dados<span class="sc">$</span>type, <span class="at">terminal =</span> <span class="fu">format</span>(dados<span class="sc">$</span>payoff, <span class="at">scientific =</span> <span class="cn">FALSE</span>, <span class="at">big.mark =</span> <span class="st">"."</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>),  <span class="fu">paste0</span>(dados<span class="sc">$</span>name, <span class="st">"</span><span class="sc">\n</span><span class="st">["</span>, dados<span class="sc">$</span>VE, <span class="st">"]"</span>))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para definir valores nas arestas</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>GetEdgeLabel <span class="ot">=</span> <span class="cf">function</span>(node) {</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">isNotRoot</span>(node) <span class="sc">&amp;&amp;</span> node<span class="sc">$</span>parent<span class="sc">$</span>type <span class="sc">==</span> <span class="st">'chance'</span>) {</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    label <span class="ot">=</span> <span class="fu">paste0</span>(node<span class="sc">$</span>name, <span class="st">" ("</span>, node<span class="sc">$</span>p, <span class="st">")"</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    label <span class="ot">=</span> node<span class="sc">$</span>name</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span> (label)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir o formato dos nós</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>GetNodeShape <span class="ot">=</span> <span class="cf">function</span>(dados) <span class="cf">switch</span>(dados<span class="sc">$</span>type, <span class="at">decision =</span> <span class="st">"box"</span>, <span class="at">chance =</span> <span class="st">"circle"</span>, <span class="at">terminal =</span> <span class="st">"none"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir o estilo das arestas</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>GetArrowHead <span class="ot">=</span> <span class="cf">function</span>(dados) <span class="cf">switch</span>(dados<span class="sc">$</span>type, <span class="at">terminal =</span> <span class="st">"oinv"</span>, <span class="at">chance =</span> <span class="st">"normal"</span>,  <span class="st">"none"</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir espessura das arestas</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>GetPenWidth <span class="ot">=</span> <span class="cf">function</span>(node) {node<span class="sc">$</span>penwidth}</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir os estilos</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">SetEdgeStyle</span>(dados, <span class="at">fontname =</span> <span class="st">'helvetica'</span>, <span class="at">label=</span>GetEdgeLabel, <span class="at">arrowhead=</span>GetArrowHead, <span class="at">penwidth=</span>GetPenWidth, <span class="at">fontsize =</span> <span class="dv">9</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="fu">SetNodeStyle</span>(dados, <span class="at">fontname =</span> <span class="st">'helvetica'</span>, <span class="at">label =</span> GetNodeLabel, <span class="at">shape =</span> GetNodeShape, <span class="at">fixedsize=</span>T, <span class="at">fontsize =</span> <span class="dv">9</span>)</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Renderizar a árvore</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="fu">ToDiagrammeRGraph</span>(dados,<span class="at">direction =</span> <span class="st">"climb"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_global_graph_attrs</span>(<span class="st">"layout"</span>, <span class="st">"dot"</span>, <span class="st">"graph"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_global_graph_attrs</span>(<span class="st">"rankdir"</span>, <span class="st">"LR"</span>,<span class="st">"graph"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">render_graph</span>()</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-814f91dee58dbb32c0c8" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-814f91dee58dbb32c0c8">{"x":{"diagram":"digraph {\n\ngraph [layout = \"dot\",\n       rankdir = \"LR\"]\n\n\n  \"1\" [label = \"Medicar \n-220\", fontname = \"helvetica\", shape = \"box\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"2\" [label = \"Sim \n-220\", fontname = \"helvetica\", shape = \"circle\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"3\" [label = \"500\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"4\" [label = \"-300\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"5\" [label = \"Não \n-550\", fontname = \"helvetica\", shape = \"circle\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"6\" [label = \"-10,000\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"7\" [label = \"500\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n\"1\"->\"2\" [id = \"1\", fontname = \"helvetica\", label = \"Sim\", arrowhead = \"normal\", penwidth = \"1\"] \n\"1\"->\"5\" [id = \"2\", fontname = \"helvetica\", label = \"Não\", arrowhead = \"normal\", penwidth = \"1\"] \n\"2\"->\"3\" [id = \"3\", fontname = \"helvetica\", label = \"A\n (0.1)\", arrowhead = \"oinv\", penwidth = \"1\"] \n\"2\"->\"4\" [id = \"4\", fontname = \"helvetica\", label = \"B\n (0.9)\", arrowhead = \"oinv\", penwidth = \"1\"] \n\"5\"->\"6\" [id = \"5\", fontname = \"helvetica\", label = \"A\n (0.1)\", arrowhead = \"oinv\", penwidth = \"1\"] \n\"5\"->\"7\" [id = \"6\", fontname = \"helvetica\", label = \"B\n (0.9)\", arrowhead = \"oinv\", penwidth = \"1\"] \n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-cd7426ba79f83985c451" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-cd7426ba79f83985c451">{"x":{"diagram":"digraph {\n\ngraph [layout = \"dot\",\n       rankdir = \"LR\"]\n\n\n  \"1\" [label = \"Medicar\n[230]\", fontname = \"helvetica\", shape = \"box\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"2\" [label = \"Sim\n[230]\", fontname = \"helvetica\", shape = \"circle\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"3\" [label = \"5.000\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"4\" [label = \"-300\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"5\" [label = \"Não\n[-550]\", fontname = \"helvetica\", shape = \"circle\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"6\" [label = \"-10.000\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n  \"7\" [label = \"500\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"9\"] \n\"1\"->\"2\" [id = \"1\", fontname = \"helvetica\", label = \"Sim\", arrowhead = \"normal\", penwidth = \"2\", fontsize = \"9\"] \n\"1\"->\"5\" [id = \"2\", fontname = \"helvetica\", label = \"Não\", arrowhead = \"normal\", penwidth = \"0.5\", fontsize = \"9\"] \n\"2\"->\"3\" [id = \"3\", fontname = \"helvetica\", label = \"A (0.1)\", arrowhead = \"oinv\", penwidth = \"0.5\", fontsize = \"9\"] \n\"2\"->\"4\" [id = \"4\", fontname = \"helvetica\", label = \"B (0.9)\", arrowhead = \"oinv\", penwidth = \"0.5\", fontsize = \"9\"] \n\"5\"->\"6\" [id = \"5\", fontname = \"helvetica\", label = \"A (0.1)\", arrowhead = \"oinv\", penwidth = \"0.5\", fontsize = \"9\"] \n\"5\"->\"7\" [id = \"6\", fontname = \"helvetica\", label = \"B (0.9)\", arrowhead = \"oinv\", penwidth = \"0.5\", fontsize = \"9\"] \n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
 </div>
 </div>
+<p>Conforme apresentado na árvore de decisão, o Valor Esperado (VE) pode ser calculado da seguinte maneira:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pa <span class="ot">&lt;-</span> <span class="fl">0.1</span>       <span class="co"># Probabilidade da doença ser A</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pb <span class="ot">&lt;-</span> <span class="fl">0.9</span>       <span class="co"># Probabilidade da doença ser B</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>v_am <span class="ot">&lt;-</span> <span class="dv">5000</span>    <span class="co"># Valor do evento: doença A e medicar</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>v_anm <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">10000</span> <span class="co"># Valor do evento: doença A e NAO medicar</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>v_bm <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">300</span>    <span class="co"># Valor do evento: doença B e medicar</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>v_bnm <span class="ot">&lt;-</span> <span class="dv">500</span>   <span class="co"># Valor do evento: doença B e NAO medicar</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>VE.SIM <span class="ot">&lt;-</span> pa <span class="sc">*</span> v_am <span class="sc">+</span> pb <span class="sc">*</span> v_bm</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>VE.NAO <span class="ot">&lt;-</span> pa <span class="sc">*</span> v_anm <span class="sc">+</span> pb <span class="sc">*</span> v_bnm</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>VE.SIM</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 230</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>VE.NAO</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -550</code></pre>
+</div>
+</div>
+<p>Ao recomendar que o paciente tome a medicação, tem-se <strong>VE(Sim) = 230</strong>. Por outro lado, ao recomendar que o paciente não tome a medicação, tem-se <strong>VE(Não) = -550</strong>. Portanto, como VE(Sim) &gt; VE(Não), tem-se VE = 230 ea <strong>recomendação a seguir é de que o paciente seja medicado</strong>.</p>
+<hr>
 </section>
-<section id="b-calcular-o-vedip." class="level4">
-<h4 class="anchored" data-anchor-id="b-calcular-o-vedip.">B) Calcular o VEdIP.</h4>
+<section id="b-calcular-o-vedip." class="level3">
+<h3 class="anchored" data-anchor-id="b-calcular-o-vedip.">B) Calcular o VEdIP.</h3>
+<p>Em um situação em que se pode obter uma Informação Perfeita, a incerteza é qual tipo de doença o paciente tem (doença A ou B). Nesse cenário, podemos gerar a seguinte árvore de decisão, na qual a loteria não é mais “Doença” e sim “Informante”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Dados do problema instanciados como nós da árvore</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>dados<span class="ot">=</span><span class="fu">as.Node</span>(<span class="fu">yaml.load</span>(<span class="st">'</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="st">name: Informante</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="st">type: chance</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="st">VE: 5000</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="st">penwidth: 0.5</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="st">A:</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="st">    name: Medicar</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="st">    type: decision</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="st">    penwidth: 0.5</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="st">    desc: A</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="st">    Medicar:</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.1</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: 5000</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 0.5</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="st">B:</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="st">    name: Não medicar</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="st">    desc: B</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="st">    type: decision</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="st">    payoff: -550</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a><span class="st">    penwidth: 0.5</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="st">    VE: -550</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a><span class="st">    Não medicar:</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a><span class="st">        type: terminal</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a><span class="st">        p: 0.9</span></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a><span class="st">        payoff: 500</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a><span class="st">        penwidth: 0.5</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a><span class="st">'</span>))</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para definir nome dos nós</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>GetNodeLabel <span class="ot">=</span> <span class="cf">function</span>(dados) <span class="cf">switch</span>(dados<span class="sc">$</span>type, <span class="at">terminal =</span> <span class="fu">format</span>(dados<span class="sc">$</span>payoff, <span class="at">scientific =</span> <span class="cn">FALSE</span>, <span class="at">big.mark =</span> <span class="st">"."</span>, <span class="at">decimal.mark =</span> <span class="st">","</span>),  dados<span class="sc">$</span>name)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Função para definir valores nas arestas</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a><span class="co"># options(useFancyQuotes = FALSE)</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>GetEdgeLabel <span class="ot">=</span> <span class="cf">function</span>(node) {</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">isNotRoot</span>(node) <span class="sc">&amp;&amp;</span> node<span class="sc">$</span>parent<span class="sc">$</span>type <span class="sc">==</span> <span class="st">'chance'</span>) {</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">paste0</span>(<span class="st">"&amp;ldquo;"</span>,node<span class="sc">$</span>desc ,<span class="st">"&amp;rdquo;"</span>))</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">isNotRoot</span>(node) <span class="sc">&amp;&amp;</span> node<span class="sc">$</span>parent<span class="sc">$</span>type <span class="sc">==</span> <span class="st">'decision'</span>) {</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>()</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir o formato dos nós</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>GetNodeShape <span class="ot">=</span> <span class="cf">function</span>(dados) <span class="cf">switch</span>(dados<span class="sc">$</span>type, <span class="at">decision =</span> <span class="st">"box"</span>, <span class="at">chance =</span> <span class="st">"circle"</span>, <span class="at">terminal =</span> <span class="st">"none"</span>)</span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir o estilo das arestas</span></span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>GetArrowHead <span class="ot">=</span> <span class="cf">function</span>(dados) <span class="cf">switch</span>(dados<span class="sc">$</span>type, <span class="at">terminal =</span> <span class="st">"oinv"</span>, <span class="at">decision =</span> <span class="st">"normal"</span>,  <span class="st">"none"</span>)</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Funcão para definir espessura das arestas</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>GetPenWidth <span class="ot">=</span> <span class="cf">function</span>(node) {node<span class="sc">$</span>penwidth}</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Definir os estilos</span></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a><span class="fu">SetEdgeStyle</span>(dados, <span class="at">fontname =</span> <span class="st">'helvetica'</span>, <span class="at">label=</span>GetEdgeLabel, <span class="at">arrowhead=</span>GetArrowHead, <span class="at">penwidth=</span>GetPenWidth, <span class="at">fontsize =</span> <span class="dv">7</span>)</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a><span class="fu">SetNodeStyle</span>(dados, <span class="at">fontname =</span> <span class="st">'helvetica'</span>, <span class="at">label =</span> GetNodeLabel, <span class="at">shape =</span> GetNodeShape, <span class="at">fixedsize =</span> T, <span class="at">fontsize =</span> <span class="dv">7</span>, <span class="at">width =</span> <span class="fl">0.6</span>, <span class="at">height =</span> <span class="fl">0.3</span>)</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a><span class="co"># Renderizar a árvore</span></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a><span class="fu">ToDiagrammeRGraph</span>(dados,<span class="at">direction =</span> <span class="st">"climb"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_global_graph_attrs</span>(<span class="st">"layout"</span>, <span class="st">"dot"</span>, <span class="st">"graph"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_global_graph_attrs</span>(<span class="st">"rankdir"</span>, <span class="st">"LR"</span>,<span class="st">"graph"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">render_graph</span>()</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-26e966754bd6cbc556cf" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-26e966754bd6cbc556cf">{"x":{"diagram":"digraph {\n\ngraph [layout = \"dot\",\n       rankdir = \"LR\"]\n\n\n  \"1\" [label = \"Informante\", fontname = \"helvetica\", shape = \"circle\", fixedsize = \"TRUE\", fontsize = \"7\", width = \"0.6\", height = \"0.3\"] \n  \"2\" [label = \"Medicar\", fontname = \"helvetica\", shape = \"box\", fixedsize = \"TRUE\", fontsize = \"7\", width = \"0.6\", height = \"0.3\"] \n  \"3\" [label = \"5.000\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"7\", width = \"0.6\", height = \"0.3\"] \n  \"4\" [label = \"Não medicar\", fontname = \"helvetica\", shape = \"box\", fixedsize = \"TRUE\", fontsize = \"7\", width = \"0.6\", height = \"0.3\"] \n  \"5\" [label = \"500\", fontname = \"helvetica\", shape = \"none\", fixedsize = \"TRUE\", fontsize = \"7\", width = \"0.6\", height = \"0.3\"] \n\"1\"->\"2\" [id = \"1\", fontname = \"helvetica\", label = \"&ldquo;A&rdquo;\", arrowhead = \"normal\", penwidth = \"0.5\", fontsize = \"7\"] \n\"1\"->\"4\" [id = \"2\", fontname = \"helvetica\", label = \"&ldquo;B&rdquo;\", arrowhead = \"normal\", penwidth = \"0.5\", fontsize = \"7\"] \n\"2\"->\"3\" [id = \"3\", fontname = \"helvetica\", fontname = \"helvetica\", arrowhead = \"oinv\", penwidth = \"0.5\", fontsize = \"7\"] \n\"4\"->\"5\" [id = \"4\", fontname = \"helvetica\", fontname = \"helvetica\", arrowhead = \"oinv\", penwidth = \"0.5\", fontsize = \"7\"] \n}","config":{"engine":null,"options":null}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>O Valor Esperado com Informação Perfeita (VEcIP) e Valor Esperado da Informação Perfeita (VEdIP) podem ser calculados da seguinte maneira:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pa &lt;- 0.1       # Probabilidade da doença ser A</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pb &lt;- 0.9       # Probabilidade da doença ser B</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>VEcIP <span class="ot">&lt;-</span> pa <span class="sc">*</span> v_am <span class="sc">+</span> pb <span class="sc">*</span> v_bnm</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>VEdIP <span class="ot">=</span> VEcIP <span class="sc">-</span> VE.SIM</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>VEcIP</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 950</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>VEdIP</span></code><button title="Copiar para a área de transferência" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 720</code></pre>
+</div>
+</div>
+<p>Dessa forma, tem-se que <strong>VEdIP = 720</strong>.</p>
+<hr>
 </section>
-<section id="c-é-possível-fazer-testes-e-esperar-para-eventual-início-da-medicação.-o-custo-associado-a-estes-testes-incluindo-o-da-espera-em-si-é-de-500.-a-eficiência-do-teste-é-paa-85-e-pnana-95.-vale-a-pena-submeter-o-paciente-aos-testes-antes-de-decidir-pela-medicação-ou-não-calcule-vedii." class="level4">
-<h4 class="anchored" data-anchor-id="c-é-possível-fazer-testes-e-esperar-para-eventual-início-da-medicação.-o-custo-associado-a-estes-testes-incluindo-o-da-espera-em-si-é-de-500.-a-eficiência-do-teste-é-paa-85-e-pnana-95.-vale-a-pena-submeter-o-paciente-aos-testes-antes-de-decidir-pela-medicação-ou-não-calcule-vedii.">C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P(“A”/A) = 85% e P(“NA”/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.</h4>
+<section id="c-é-possível-fazer-testes-e-esperar-para-eventual-início-da-medicação.-o-custo-associado-a-estes-testes-incluindo-o-da-espera-em-si-é-de-500.-a-eficiência-do-teste-é-paa-85-e-pnana-95.-vale-a-pena-submeter-o-paciente-aos-testes-antes-de-decidir-pela-medicação-ou-não-calcule-vedii." class="level3">
+<h3 class="anchored" data-anchor-id="c-é-possível-fazer-testes-e-esperar-para-eventual-início-da-medicação.-o-custo-associado-a-estes-testes-incluindo-o-da-espera-em-si-é-de-500.-a-eficiência-do-teste-é-paa-85-e-pnana-95.-vale-a-pena-submeter-o-paciente-aos-testes-antes-de-decidir-pela-medicação-ou-não-calcule-vedii.">C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P(“A”/A) = 85% e P(“NA”/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.</h3>
+</section>
+<section id="section" class="level3">
+<h3 class="anchored" data-anchor-id="section"></h3>
 </section>
 </section>
 
@@ -270,12 +354,12 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // flash "checked"
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
+    button.setAttribute("title", "Copiada");
     let tooltip;
     if (window.bootstrap) {
       button.setAttribute("data-bs-toggle", "tooltip");
       button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
+      button.setAttribute("data-bs-title", "Copiada");
       tooltip = new bootstrap.Tooltip(button, 
         { trigger: "manual", 
           customClass: "code-copy-button-tooltip",

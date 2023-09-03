@@ -1,6 +1,8 @@
 ---
 title: ""
 format: html
+prefer-html: true
+lang: pt-BR
 ---
 
 ::: {style="text-align:center"}
@@ -26,12 +28,12 @@ Um paciente apresenta um conjunto de sintomas que podem ser enquadrados em dois 
 
 Se a doença for **A** e medicar, a cura ocorrerá e a este evento associamos um valor de **+5.000**. Entretanto, se não medicar o quadro se complicará e a este evento associamos o valor **--10.000**. A primeira análise da situação conduz a uma probabilidade de **10%** da doença ser **A**. Se a doença for **B** e medicar, aparecerão efeitos colaterais indesejáveis e a este evento associamos o valor **--300**. A não medicar e esperar que os sintomas passem sozinhos associamos o valor **+500**.
 
-#### A) Utilizando o critério do VE, recomende o procedimento a seguir.
+### A) Utilizando o critério do VE, recomende o procedimento a seguir.
 
 Inicialmente, importa-se as bibliotecas necessárias e definem-se os dados para a criação da árvore de decisão.
 
 ```{r}
-# warning = false
+#| warning: false
 # Bibliotecas necessárias para criar árvores 
 library(data.tree)
 library(yaml)
@@ -40,19 +42,19 @@ library(usethis)
 library(devtools)
 library(DiagrammeR)
 # Dados do problema instanciados como nós da árvore
-node=as.Node(yaml.load("
+dados=as.Node(yaml.load("
 name: Medicar
 type: decision
-VE: -220
+VE: 230
 Sim:
     type: chance
     desc: Doença
     penwidth: 2
-    VE: -220
+    VE: 230
     A:
         type: terminal
         p: 0.1
-        payoff: 500
+        payoff: 5000
         penwidth: 0.5
     B:
         type: terminal
@@ -78,11 +80,11 @@ Não:
 "))
 ```
 
-Na sequência, definem-se as funções utilitárias para definir estilos e demais confirações da árvore de decisão.
+Na sequência, definem-se as funções utilitárias para definir estilos e demais configurações da árvore de decisão.
 
 ```{r}
 # Função para definir nome dos nós
-GetNodeLabel = function(node) switch(node$type, terminal = format(node$payoff, scientific = FALSE, big.mark = ","),  paste0(node$name, "\n[", node$VE, "]"))
+GetNodeLabel = function(dados) switch(dados$type, terminal = format(dados$payoff, scientific = FALSE, big.mark = ".", decimal.mark = ","),  paste0(dados$name, "\n[", dados$VE, "]"))
 # Função para definir valores nas arestas
 GetEdgeLabel = function(node) {
   if (isNotRoot(node) && node$parent$type == 'chance') {
@@ -93,22 +95,118 @@ GetEdgeLabel = function(node) {
   return (label)
 }
 # Funcão para definir o formato dos nós
-GetNodeShape = function(node) switch(node$type, decision = "box", chance = "circle", terminal = "none")
+GetNodeShape = function(dados) switch(dados$type, decision = "box", chance = "circle", terminal = "none")
 # Funcão para definir o estilo das arestas
-GetArrowHead = function(node) switch(node$type, terminal = "oinv", chance = "normal",  "none")
+GetArrowHead = function(dados) switch(dados$type, terminal = "oinv", chance = "normal",  "none")
 # Funcão para definir espessura das arestas
 GetPenWidth = function(node) {node$penwidth}
 
 # Definir os estilos
-SetEdgeStyle(node, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth)
-SetNodeStyle(node, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize=T, fontsize = 9)
+SetEdgeStyle(dados, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth, fontsize = 9)
+SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize=T, fontsize = 9)
 # Renderizar a árvore
-ToDiagrammeRGraph(node,direction = "climb") %>%
+ToDiagrammeRGraph(dados,direction = "climb") %>%
   set_global_graph_attrs("layout", "dot", "graph") %>%
   add_global_graph_attrs("rankdir", "LR","graph") %>%
   render_graph()
 ```
 
-#### B) Calcular o VEdIP.
+Conforme apresentado na árvore de decisão, o Valor Esperado (VE) pode ser calculado da seguinte maneira:
 
-#### C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P("A"/A) = 85% e P("NA"/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.
+```{r}
+pa <- 0.1       # Probabilidade da doença ser A
+pb <- 0.9       # Probabilidade da doença ser B
+v_am <- 5000    # Valor do evento: doença A e medicar
+v_anm <- -10000 # Valor do evento: doença A e NAO medicar
+v_bm <- -300    # Valor do evento: doença B e medicar
+v_bnm <- 500   # Valor do evento: doença B e NAO medicar
+VE.SIM <- pa * v_am + pb * v_bm
+VE.NAO <- pa * v_anm + pb * v_bnm
+VE.SIM
+VE.NAO
+```
+
+Ao recomendar que o paciente tome a medicação, tem-se **VE(Sim) = 230**. Por outro lado, ao recomendar que o paciente não tome a medicação, tem-se **VE(Não) = -550**. Portanto, como VE(Sim) \> VE(Não), tem-se VE = 230 ea **recomendação a seguir é de que o paciente seja medicado**.
+
+------------------------------------------------------------------------
+
+### B) Calcular o VEdIP.
+
+Em um situação em que se pode obter uma Informação Perfeita, a incerteza é qual tipo de doença o paciente tem (doença A ou B). Nesse cenário, podemos gerar a seguinte árvore de decisão, na qual a loteria não é mais "Doença" e sim "Informante".
+
+```{r}
+# Dados do problema instanciados como nós da árvore
+dados=as.Node(yaml.load('
+name: Informante
+type: chance
+VE: 5000
+penwidth: 0.5
+A:
+    name: Medicar
+    type: decision
+    penwidth: 0.5
+    desc: A
+    Medicar:
+        type: terminal
+        p: 0.1
+        payoff: 5000
+        penwidth: 0.5
+B:
+    name: Não medicar
+    desc: B
+    type: decision
+    payoff: -550
+    penwidth: 0.5
+    VE: -550
+    Não medicar:
+        type: terminal
+        p: 0.9
+        payoff: 500
+        penwidth: 0.5
+'))
+# Função para definir nome dos nós
+GetNodeLabel = function(dados) switch(dados$type, terminal = format(dados$payoff, scientific = FALSE, big.mark = ".", decimal.mark = ","),  dados$name)
+# Função para definir valores nas arestas
+# options(useFancyQuotes = FALSE)
+GetEdgeLabel = function(node) {
+  if (isNotRoot(node) && node$parent$type == 'chance') {
+    return(paste0("&ldquo;",node$desc ,"&rdquo;"))
+  } else if (isNotRoot(node) && node$parent$type == 'decision') {
+    return()
+  }
+}
+# Funcão para definir o formato dos nós
+GetNodeShape = function(dados) switch(dados$type, decision = "box", chance = "circle", terminal = "none")
+# Funcão para definir o estilo das arestas
+GetArrowHead = function(dados) switch(dados$type, terminal = "oinv", decision = "normal",  "none")
+# Funcão para definir espessura das arestas
+GetPenWidth = function(node) {node$penwidth}
+
+# Definir os estilos
+SetEdgeStyle(dados, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth, fontsize = 7)
+SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize = T, fontsize = 7, width = 0.6, height = 0.3)
+# Renderizar a árvore
+ToDiagrammeRGraph(dados,direction = "climb") %>%
+  set_global_graph_attrs("layout", "dot", "graph") %>%
+  add_global_graph_attrs("rankdir", "LR","graph") %>%
+  render_graph()
+```
+
+O Valor Esperado com Informação Perfeita (VEcIP) e Valor Esperado da Informação Perfeita (VEdIP) podem ser calculados da seguinte maneira:
+
+```{r}
+# pa <- 0.1       # Probabilidade da doença ser A
+# pb <- 0.9       # Probabilidade da doença ser B
+VEcIP <- pa * v_am + pb * v_bnm
+VEdIP = VEcIP - VE.SIM
+VEcIP
+VEdIP
+```
+
+Dessa forma, tem-se que **VEdIP = 720**.
+
+------------------------------------------------------------------------
+
+### C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P("A"/A) = 85% e P("NA"/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.
+
+### 
