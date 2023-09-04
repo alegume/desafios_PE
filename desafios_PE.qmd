@@ -30,7 +30,7 @@ Se a doença for **A** e medicar, a cura ocorrerá e a este evento associamos um
 
 ### A) Utilizando o critério do VE, recomende o procedimento a seguir.
 
-Inicialmente, importa-se as bibliotecas necessárias e definem-se os dados para a criação da árvore de decisão.
+Inicialmente, as bibliotecas necessárias são importadas e definem-se os dados para o cálculo do Valor Esperado (VE) a criação da árvore de decisão.
 
 ```{r}
 #| warning: false
@@ -41,43 +41,55 @@ library(dplyr)
 library(usethis)
 library(devtools)
 library(DiagrammeR)
+
+pa <- 0.1       # Probabilidade da doença ser A
+pb <- 0.9       # Probabilidade da doença ser B
+v_am <- 5000    # Valor do evento: doença A e medicar
+v_anm <- -10000 # Valor do evento: doença A e NAO medicar
+v_bm <- -300    # Valor do evento: doença B e medicar
+v_bnm <- 500    # Valor do evento: doença B e NAO medicar
+VE.SIM <- pa * v_am + pb * v_bm
+VE.NAO <- pa * v_anm + pb * v_bnm
+VE = max(VE.SIM, VE.NAO) # Define o VE
+VE
+
 # Dados do problema instanciados como nós da árvore
-dados=as.Node(yaml.load("
+dados=as.Node(yaml.load(stringr::str_interp("
 name: Medicar
 type: decision
-VE: 230
+VE: ${VE.SIM}
 Sim:
     type: chance
     desc: Doença
     penwidth: 2
-    VE: 230
+    VE: ${VE.SIM}
     A:
         type: terminal
-        p: 0.1
-        payoff: 5000
+        p: ${pa}
+        payoff: ${v_am}
         penwidth: 0.5
     B:
         type: terminal
-        p: 0.9
-        payoff: -300
+        p: ${pb}
+        payoff: ${v_bm}
         penwidth: 0.5
 Não:
     type: chance
     desc: Doença
     payoff: -550
     penwidth: 0.5
-    VE: -550
+    VE: ${VE.NAO}
     A:
         type: terminal
-        p: 0.1
-        payoff: -10000
+        p: ${pa}
+        payoff: ${v_anm}
         penwidth: 0.5
     B:
         type: terminal
-        p: 0.9
-        payoff: 500
+        p: ${pb}
+        payoff: ${v_bnm}
         penwidth: 0.5
-"))
+")))
 ```
 
 Na sequência, definem-se as funções utilitárias para definir estilos e demais configurações da árvore de decisão.
@@ -97,7 +109,7 @@ GetEdgeLabel = function(node) {
 # Funcão para definir o formato dos nós
 GetNodeShape = function(dados) switch(dados$type, decision = "box", chance = "circle", terminal = "none")
 # Funcão para definir o estilo das arestas
-GetArrowHead = function(dados) switch(dados$type, terminal = "oinv", chance = "normal",  "none")
+GetArrowHead = function(dados) switch(dados$type, terminal = "oinv",  "none")
 # Funcão para definir espessura das arestas
 GetPenWidth = function(node) {node$penwidth}
 
@@ -111,35 +123,20 @@ ToDiagrammeRGraph(dados,direction = "climb") %>%
   render_graph()
 ```
 
-Conforme apresentado na árvore de decisão, o Valor Esperado (VE) pode ser calculado da seguinte maneira:
-
-```{r}
-pa <- 0.1       # Probabilidade da doença ser A
-pb <- 0.9       # Probabilidade da doença ser B
-v_am <- 5000    # Valor do evento: doença A e medicar
-v_anm <- -10000 # Valor do evento: doença A e NAO medicar
-v_bm <- -300    # Valor do evento: doença B e medicar
-v_bnm <- 500    # Valor do evento: doença B e NAO medicar
-VE.SIM <- pa * v_am + pb * v_bm
-VE.NAO <- pa * v_anm + pb * v_bnm
-VE = max(VE.SIM, VE.NAO)
-VE
-```
-
-Ao recomendar que o paciente tome a medicação, tem-se **VE(Sim) = 230**. Por outro lado, ao recomendar que o paciente não tome a medicação, tem-se **VE(Não) = -550**. Portanto, como VE(Sim) \> VE(Não), tem-se VE = 230 ea **recomendação a seguir é de que o paciente seja medicado**.
+Ao recomendar que o paciente tome a medicação, tem-se **VE(Sim) = 230**. Por outro lado, ao recomendar que o paciente não tome a medicação, tem-se **VE(Não) = -550**. Portanto, como VE(Sim) \> VE(Não), tem-se VE = 230 e a **recomendação a seguir é de que o paciente seja medicado**.
 
 ------------------------------------------------------------------------
 
 ### B) Calcular o VEdIP.
 
-Em um situação em que se pode obter uma Informação Perfeita, a incerteza é qual tipo de doença o paciente tem (doença A ou B). Nesse cenário, podemos gerar a seguinte árvore de decisão, na qual a loteria não é mais "Doença" e sim "Informante".
+A incerteza envilvida neste problema é qual tipo de doença o paciente tem (doença A ou B). Em um situação em que se pode obter uma Informação Perfeita, pode-se gerar a seguinte árvore, na qual a loteria não é mais "Doença" e sim "Informante".
 
 ```{r}
 # Dados do problema instanciados como nós da árvore
-dados=as.Node(yaml.load('
+dados=as.Node(yaml.load(stringr::str_interp('
 name: Informante
 type: chance
-VE: 5000
+VE: ${pa * v_am + pb * v_bnm}
 penwidth: 0.5
 A:
     name: Medicar
@@ -148,8 +145,8 @@ A:
     desc: A
     Medicar:
         type: terminal
-        p: 0.1
-        payoff: 5000
+        p: ${pa}
+        payoff: ${v_am}
         penwidth: 0.5
 B:
     name: Não medicar
@@ -160,14 +157,13 @@ B:
     VE: -550
     Não medicar:
         type: terminal
-        p: 0.9
-        payoff: 500
+        p: ${pb}
+        payoff: ${v_bnm}
         penwidth: 0.5
-'))
+')))
 # Função para definir nome dos nós
 GetNodeLabel = function(dados) switch(dados$type, terminal = format(dados$payoff, scientific = FALSE, big.mark = ".", decimal.mark = ","),  dados$name)
 # Função para definir valores nas arestas
-# options(useFancyQuotes = FALSE)
 GetEdgeLabel = function(node) {
   if (isNotRoot(node) && node$parent$type == 'chance') {
     return(paste0("&ldquo;",node$desc ,"&rdquo;"))
@@ -184,7 +180,7 @@ GetPenWidth = function(node) {node$penwidth}
 
 # Definir os estilos
 SetEdgeStyle(dados, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth, fontsize = 7)
-SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize = T, fontsize = 7, width = 0.6, height = 0.3)
+SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize = T, fontsize = 6, width = 0.5, height = 0.3)
 # Renderizar a árvore
 ToDiagrammeRGraph(dados,direction = "climb") %>%
   set_global_graph_attrs("layout", "dot", "graph") %>%
@@ -229,13 +225,13 @@ pb_tb <- round((pb * ptb_b) / ptb, digits = 4)   # P(B|"B")
 cat(pa_ta, pb_ta, pa_tb, pb_tb)
 ```
 
-Com essas informações, é possível calcular as demais informações necessárias para construir a árvore de decisão a seguir.
+Após esses cálculos, é possível encontrar as demais informações necessárias para construir a árvore de decisão. A seguir, também são apresentados os cálculos do Valor Esperado com Informação Imperfeita (**VEcII = 689**) e Valor Esperado da Informação Imperfeita (**VEdII = 459**).
 
 ```{r}
 # Valor esperado após o teste indicar "A" 
-v_ta_m <-   round(pa_ta * v_am + pb_ta * v_bm)
+v_ta_m  <-  round(pa_ta * v_am + pb_ta * v_bm)
 v_ta_nm <-  round(pa_ta * v_anm + pb_ta * v_bnm)
-VA <- round(max(v_ta_m, v_ta_nm))
+VA      <-  round(max(v_ta_m, v_ta_nm))
 
 # Valor esperado após o teste indicar "B" 
 v_tb_m <-   round(pa_tb * v_am + pb_tb * v_bm)
@@ -248,6 +244,8 @@ VEcII <- round(pta * VA + ptb * VB)
 VEdII <- VEcII - VE
 VEdII
 ```
+
+Com essas informações, é possível gerar a árvore de decisão da seguinte forma.
 
 ```{r}
 # Dados do problema instanciados como nós da árvore
@@ -297,7 +295,6 @@ Sim:
                 p: ${pb_ta}
                 payoff: ${v_bnm}
                 penwidth: 0.5
-
     \\'B\\':
         type: decision
         desc: Medicar
@@ -334,7 +331,6 @@ Sim:
                 p: ${pb_tb}
                 payoff: ${v_bnm}
                 penwidth: 0.5
-
 Não:
   type: decision
   desc: Medicar
@@ -371,11 +367,6 @@ Não:
           payoff: ${v_bnm}
           penwidth: 0.5
 ")))
-
-```
-
-::: {style="width: 100%;"}
-```{r}
 # Função para definir nome dos nós
 GetNodeLabel = function(dados) switch(dados$type, terminal = format(dados$payoff, scientific = FALSE, big.mark = ".", decimal.mark = ","),  paste0(dados$desc, "\n[", dados$VE, "]"))
 # Função para definir valores nas arestas
@@ -406,4 +397,5 @@ arvore <- ToDiagrammeRGraph(dados, direction = "climb") %>%
   add_global_graph_attrs("rankdir", "LR","graph")
 render_graph(arvore, width = 500, height = 500)
 ```
-:::
+
+Conforme calculado anteriormente, VEdII = 459. Considerando que o custo associado ao teste (incluindo a espera) é de 500, **não faz sentido submeter o paciente ao teste** uma vez que VEdII \< 500.
