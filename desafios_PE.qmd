@@ -119,11 +119,11 @@ pb <- 0.9       # Probabilidade da doença ser B
 v_am <- 5000    # Valor do evento: doença A e medicar
 v_anm <- -10000 # Valor do evento: doença A e NAO medicar
 v_bm <- -300    # Valor do evento: doença B e medicar
-v_bnm <- 500   # Valor do evento: doença B e NAO medicar
+v_bnm <- 500    # Valor do evento: doença B e NAO medicar
 VE.SIM <- pa * v_am + pb * v_bm
 VE.NAO <- pa * v_anm + pb * v_bnm
-VE.SIM
-VE.NAO
+VE = max(VE.SIM, VE.NAO)
+VE
 ```
 
 Ao recomendar que o paciente tome a medicação, tem-se **VE(Sim) = 230**. Por outro lado, ao recomendar que o paciente não tome a medicação, tem-se **VE(Não) = -550**. Portanto, como VE(Sim) \> VE(Não), tem-se VE = 230 ea **recomendação a seguir é de que o paciente seja medicado**.
@@ -195,8 +195,6 @@ ToDiagrammeRGraph(dados,direction = "climb") %>%
 O Valor Esperado com Informação Perfeita (VEcIP) e Valor Esperado da Informação Perfeita (VEdIP) podem ser calculados da seguinte maneira:
 
 ```{r}
-# pa <- 0.1       # Probabilidade da doença ser A
-# pb <- 0.9       # Probabilidade da doença ser B
 VEcIP <- pa * v_am + pb * v_bnm
 VEdIP = VEcIP - VE.SIM
 VEdIP
@@ -208,47 +206,208 @@ Dessa forma, tem-se que **VEdIP = 720**.
 
 ### C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P("A"/A) = 85% e P("NA"/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.
 
-Inicialmente, podemos considerar as informações do resultado do exame para calcular as probabilidades condicionais relacionadas ao resultado do exame e as probabilidade que resultam das probabilidades *a priori* em conjunção com a qualidade da informação.
+Inicialmente, serão consideradas as informações de eficiência do teste para calcular as probabilidades condicionais relacionadas ao resultado do teste e as probabilidade que resultam das probabilidades *a priori* em conjunção com a qualidade da informação. Como o paciente apresenta um conjunto de sintomas que pode caracterizar doença A ou B, NA significa B. Por exemplo, P("NA"\|NA) será representado por P("B"\|B).
 
 ```{r}
-pea_a <- 0.85         # P("A"|A)
-peb_b <- 0.95         # P("B"|B)
-peb_a <- 1 - pea_a    # P("B"|A)
-pea_b <- 1 - peb_b    # P("A"|B)
+pta_a <- 0.85         # P("A"|A)
+ptb_b <- 0.95         # P("B"|B)
+ptb_a <- 1 - pta_a    # P("B"|A)
+pta_b <- 1 - ptb_b    # P("A"|B)
 # Dados 'a priori' + Qualidade
-pea <- pa * pea_a + pb * pea_b  # P("A")
-peb <- pa * peb_a + pb * peb_b  # P("B")
-cat(pea_a, peb_b, peb_a, pea_b, pea, peb)
+pta <- pa * pta_a + pb * pta_b  # P("A")
+ptb <- pa * ptb_a + pb * ptb_b  # P("B")
+cat(pta_a, ptb_b, ptb_a, pta_b, pta, ptb)
 ```
 
 Usando a regra de Bayes, podemos calculas as probabilidades *a posteriori.*
 
 ```{r}
-pa_ea <- (pa * pea_a) / pea   # P(A|"A")
-pb_ea <- (pb * pea_b) / pea   # P(B|"A")
-pa_eb <- (pa * peb_a) / peb   # P(A|"B")
-pb_eb <- (pb * peb_b) / peb   # P(B|"B")
-cat(pa_ea, pb_ea, pa_eb, pb_eb)
+pa_ta <- (pa * pta_a) / pta   # P(A|"A")
+pb_ta <- (pb * pta_b) / pta   # P(B|"A")
+pa_tb <- (pa * ptb_a) / ptb   # P(A|"B")
+pb_tb <- (pb * ptb_b) / ptb   # P(B|"B")
+cat(pa_ta, pb_ta, pa_tb, pb_tb)
 ```
 
-Com essas informações, é possível construir a árvore de decisão a seguir.
+Com essas informações, é possível calcular as demais informações necessárias para construir a árvore de decisão a seguir.
 
 ```{r}
-v_ea_m <- pa_ea * v_am + pb_ea * v_bm     #
-v_ea_nm <- pa_ea * v_anm + pb_ea * v_bnm  #
+# Valor esperado após o teste indicar "A" 
+v_ta_m <- pa_ta * v_am + pb_ta * v_bm  
+v_ta_nm <- pa_ta * v_anm + pb_ta * v_bnm
+VA <- max(v_ta_m, v_ta_nm)
 
-v_eb_m <- pa_eb * v_am + pb_eb * v_bm     #
-v_eb_nm <- pa_eb * v_anm + pb_eb * v_bnm  #
+# Valor esperado após o teste indicar "B" 
+v_tb_m <- pa_tb * v_am + pb_tb * v_bm     #
+v_tb_nm <- pa_tb * v_anm + pb_tb * v_bnm  #
+VB <- max(v_tb_m, v_tb_nm)
 
-cat(v_ea_m, v_eb_nm, v_eb_m, v_eb_nm)
-
-VA <- max(v_ea_m, v_ea_nm)
-VA
-
-VB <- max(v_eb_m, v_eb_nm)
-VB
-
-VEcII <- pea * VA + peb * VB
-VEdII <- VEcII - 500
+# Valor esperado com informação imperfeita
+VEcII <- pta * VA + ptb * VB
+# Valor esperado da informação imperfeita
+VEdII <- VEcII - VE
 VEdII
 ```
+
+```{r}
+# Dados do problema instanciados como nós da árvore
+dados=as.Node(yaml.load(stringr::str_interp("
+name: Testar
+desc: Testar
+type: decision
+VE: ${VEcII}
+Sim:
+    type: chance
+    desc: Resultado\\nteste
+    penwidth: 2
+    VE: ${VEcII}
+    
+    A:
+        type: decision
+        desc: Medicar
+        VE: ${VE}
+        Sim:
+            type: chance
+            desc: Doença
+            penwidth: 2
+            VE: 230
+            A:
+                type: terminal
+                p: ${pa}
+                payoff: ${v_am}
+                penwidth: 0.5
+            B:
+                type: terminal
+                p: ${pb}
+                payoff: ${v_bm}
+                penwidth: 0.5
+        Não:
+            type: chance
+            desc: Doença
+            payoff: -550
+            penwidth: 0.5
+            VE: -550
+            A:
+                type: terminal
+                p: ${pa}
+                payoff: ${v_anm}
+                penwidth: 0.5
+            B:
+                type: terminal
+                p: ${pb}
+                payoff: ${v_bnm}
+                penwidth: 0.5
+
+    B:
+        type: decision
+        desc: Medicar
+        VE: ${VE}
+        Sim:
+            type: chance
+            desc: Doença
+            penwidth: 2
+            VE: 230
+            A:
+                type: terminal
+                p: ${pa}
+                payoff: ${v_am}
+                penwidth: 0.5
+            B:
+                type: terminal
+                p: ${pb}
+                payoff: ${v_bm}
+                penwidth: 0.5
+        Não:
+            type: chance
+            desc: Doença
+            payoff: -550
+            penwidth: 0.5
+            VE: -550
+            A:
+                type: terminal
+                p: ${pa}
+                payoff: ${v_anm}
+                penwidth: 0.5
+            B:
+                type: terminal
+                p: ${pb}
+                payoff: ${v_bnm}
+                penwidth: 0.5
+
+
+
+
+
+
+Não:
+  type: decision
+  desc: Medicar
+  VE: ${VE}
+  Sim:
+      type: chance
+      desc: Doença
+      penwidth: 2
+      VE: 230
+      A:
+          type: terminal
+          p: ${pa}
+          payoff: ${v_am}
+          penwidth: 0.5
+      B:
+          type: terminal
+          p: ${pb}
+          payoff: ${v_bm}
+          penwidth: 0.5
+  Não:
+      type: chance
+      desc: Doença
+      payoff: -550
+      penwidth: 0.5
+      VE: -550
+      A:
+          type: terminal
+          p: ${pa}
+          payoff: ${v_anm}
+          penwidth: 0.5
+      B:
+          type: terminal
+          p: ${pb}
+          payoff: ${v_bnm}
+          penwidth: 0.5
+")))
+
+```
+
+::: {style="width: 100%;"}
+```{r}
+# Função para definir nome dos nós
+GetNodeLabel = function(dados) switch(dados$type, terminal = format(dados$payoff, scientific = FALSE, big.mark = ".", decimal.mark = ","),  paste0(dados$desc, "\n[", dados$VE, "]"))
+# Função para definir valores nas arestas
+GetEdgeLabel = function(node) {
+  if (isNotRoot(node) && node$parent$type == 'chance') {
+    # if (node$teste == True) {
+    #   label = paste0(" (", node$name, ")")
+    # }
+    label = paste0(node$name, " (", node$p, ")")
+  } else {
+    label = node$name
+  }
+  return (label)
+}
+# Funcão para definir o formato dos nós
+GetNodeShape = function(dados) switch(dados$type, decision = "box", chance = "circle", terminal = "none")
+# Funcão para definir o estilo das arestas
+GetArrowHead = function(dados) switch(dados$type, terminal = "oinv",  "none")
+# Funcão para definir espessura das arestas
+GetPenWidth = function(node) {node$penwidth}
+
+# Definir os estilos
+SetEdgeStyle(dados, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth, fontsize = 9)
+SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize=T, fontsize = 9)
+# Renderizar a árvore
+arvore <- ToDiagrammeRGraph(dados, direction = "climb") %>%
+  set_global_graph_attrs("layout", "dot", "graph") %>%
+  add_global_graph_attrs("rankdir", "LR","graph")
+render_graph(arvore, width = 500, height = 700)
+```
+:::
