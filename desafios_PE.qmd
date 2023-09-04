@@ -1,6 +1,8 @@
 ---
 title: ""
-format: html
+format:
+  html:
+    code-overflow: wrap
 prefer-html: true
 lang: pt-BR
 ---
@@ -28,9 +30,11 @@ Um paciente apresenta um conjunto de sintomas que podem ser enquadrados em dois 
 
 Se a doença for **A** e medicar, a cura ocorrerá e a este evento associamos um valor de **+5.000**. Entretanto, se não medicar o quadro se complicará e a este evento associamos o valor **--10.000**. A primeira análise da situação conduz a uma probabilidade de **10%** da doença ser **A**. Se a doença for **B** e medicar, aparecerão efeitos colaterais indesejáveis e a este evento associamos o valor **--300**. A não medicar e esperar que os sintomas passem sozinhos associamos o valor **+500**.
 
+------------------------------------------------------------------------
+
 ### A) Utilizando o critério do VE, recomende o procedimento a seguir.
 
-Inicialmente, as bibliotecas necessárias são importadas e definem-se os dados para o cálculo do Valor Esperado (VE) a criação da árvore de decisão.
+Inicialmente, as bibliotecas necessárias são importadas e definem-se os dados para o cálculo do Valor Esperado (VE) e para a criação da árvore de decisão.
 
 ```{r}
 #| warning: false
@@ -92,7 +96,7 @@ Não:
 ")))
 ```
 
-Na sequência, definem-se as funções utilitárias para definir estilos e demais configurações da árvore de decisão.
+Na sequência, definem-se as funções utilitárias para configurar os estilos e demais detalhes da árvore de decisão.
 
 ```{r}
 # Função para definir nome dos nós
@@ -123,13 +127,13 @@ ToDiagrammeRGraph(dados,direction = "climb") %>%
   render_graph()
 ```
 
-Ao recomendar que o paciente tome a medicação, tem-se **VE(Sim) = 230**. Por outro lado, ao recomendar que o paciente não tome a medicação, tem-se **VE(Não) = -550**. Portanto, como VE(Sim) \> VE(Não), tem-se VE = 230 e a **recomendação a seguir é de que o paciente seja medicado**.
+Ao recomendar que o paciente tome a medicação, tem-se VE(Sim) = 230. Por outro lado, ao recomendar que o paciente não tome a medicação, VE(Não) = -550. Portanto, como VE(Sim) \> VE(Não), VE = 230 e **a recomendação a seguir é de que o paciente seja medicado**.
 
 ------------------------------------------------------------------------
 
 ### B) Calcular o VEdIP.
 
-A incerteza envilvida neste problema é qual tipo de doença o paciente tem (doença A ou B). Em um situação em que se pode obter uma Informação Perfeita, pode-se gerar a seguinte árvore, na qual a loteria não é mais "Doença" e sim "Informante".
+A incerteza envolvida neste problema é qual tipo de doença o paciente tem (doença A ou B). Em uma situação em que se pode obter uma Informação Perfeita, pode-se gerar a seguinte árvore, na qual a loteria não é mais "Doença" e sim "Informante".
 
 ```{r}
 # Dados do problema instanciados como nós da árvore
@@ -192,7 +196,7 @@ O Valor Esperado com Informação Perfeita (VEcIP) e Valor Esperado da Informaç
 
 ```{r}
 VEcIP <- pa * v_am + pb * v_bnm
-VEdIP = VEcIP - VE.SIM
+VEdIP = VEcIP - VE
 VEdIP
 ```
 
@@ -202,7 +206,7 @@ Dessa forma, tem-se que **VEdIP = 720**.
 
 ### C) É possível fazer testes e esperar para eventual início da medicação. O custo associado a estes testes (incluindo o da espera em si) é de 500. A eficiência do teste é P("A"/A) = 85% e P("NA"/NA)= 95%. Vale a pena submeter o paciente aos testes antes de decidir pela medicação ou não? Calcule VEdII.
 
-Inicialmente, serão consideradas as informações de eficiência do teste para calcular as probabilidades condicionais relacionadas ao resultado do teste e as probabilidade que resultam das probabilidades *a priori* em conjunção com a qualidade da informação. Como o paciente apresenta um conjunto de sintomas que pode caracterizar doença A ou B, NA significa B. Por exemplo, P("NA"\|NA) será representado por P("B"\|B).
+Inicialmente, serão consideradas as informações de eficiência do teste para calcular as probabilidades condicionais relacionadas ao resultado do teste e as probabilidades que resultam das probabilidades *a priori* em conjunção com a qualidade da informação. Como o paciente apresenta um conjunto de sintomas que pode caracterizar doença A ou B, NA significa B. Por exemplo, P("NA"\|NA) será representado por P("B"\|B).
 
 ```{r}
 pta_a <- 0.85         # P("A"|A)
@@ -240,6 +244,7 @@ VB <- round(max(v_tb_m, v_tb_nm))
 
 # Valor esperado com informação imperfeita
 VEcII <- round(pta * VA + ptb * VB)
+VEcII
 # Valor esperado da informação imperfeita
 VEdII <- VEcII - VE
 VEdII
@@ -398,4 +403,4 @@ arvore <- ToDiagrammeRGraph(dados, direction = "climb") %>%
 render_graph(arvore, width = 500, height = 500)
 ```
 
-Conforme calculado anteriormente, VEdII = 459. Considerando que o custo associado ao teste (incluindo a espera) é de 500, **não faz sentido submeter o paciente ao teste** uma vez que VEdII \< 500.
+Conforme calculado anteriormente, VEdII = 459. Considerando que o custo associado ao teste (incluindo a espera) é de 500, **não vale a pena submeter o paciente ao teste** uma vez que VEdII \< 500.
