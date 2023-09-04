@@ -222,10 +222,10 @@ cat(pta_a, ptb_b, ptb_a, pta_b, pta, ptb)
 Usando a regra de Bayes, podemos calculas as probabilidades *a posteriori.*
 
 ```{r}
-pa_ta <- (pa * pta_a) / pta   # P(A|"A")
-pb_ta <- (pb * pta_b) / pta   # P(B|"A")
-pa_tb <- (pa * ptb_a) / ptb   # P(A|"B")
-pb_tb <- (pb * ptb_b) / ptb   # P(B|"B")
+pa_ta <- round((pa * pta_a) / pta, digits = 4)   # P(A|"A")
+pb_ta <- round((pb * pta_b) / pta, digits = 4)   # P(B|"A")
+pa_tb <- round((pa * ptb_a) / ptb, digits = 4)   # P(A|"B")
+pb_tb <- round((pb * ptb_b) / ptb, digits = 4)   # P(B|"B")
 cat(pa_ta, pb_ta, pa_tb, pb_tb)
 ```
 
@@ -233,17 +233,17 @@ Com essas informações, é possível calcular as demais informações necessár
 
 ```{r}
 # Valor esperado após o teste indicar "A" 
-v_ta_m <- pa_ta * v_am + pb_ta * v_bm  
-v_ta_nm <- pa_ta * v_anm + pb_ta * v_bnm
-VA <- max(v_ta_m, v_ta_nm)
+v_ta_m <-   round(pa_ta * v_am + pb_ta * v_bm)
+v_ta_nm <-  round(pa_ta * v_anm + pb_ta * v_bnm)
+VA <- round(max(v_ta_m, v_ta_nm))
 
 # Valor esperado após o teste indicar "B" 
-v_tb_m <- pa_tb * v_am + pb_tb * v_bm     #
-v_tb_nm <- pa_tb * v_anm + pb_tb * v_bnm  #
-VB <- max(v_tb_m, v_tb_nm)
+v_tb_m <-   round(pa_tb * v_am + pb_tb * v_bm)
+v_tb_nm <-  round(pa_tb * v_anm + pb_tb * v_bnm)
+VB <- round(max(v_tb_m, v_tb_nm))
 
 # Valor esperado com informação imperfeita
-VEcII <- pta * VA + ptb * VB
+VEcII <- round(pta * VA + ptb * VB)
 # Valor esperado da informação imperfeita
 VEdII <- VEcII - VE
 VEdII
@@ -258,86 +258,82 @@ type: decision
 VE: ${VEcII}
 Sim:
     type: chance
-    desc: Resultado\\nteste
+    desc: Teste
     penwidth: 2
     VE: ${VEcII}
-    
-    A:
+    \\'A\\':
         type: decision
         desc: Medicar
-        VE: ${VE}
+        VE: ${VA}
+        p: ${pta}
         Sim:
             type: chance
-            desc: Doença
+            desc: Resultado
             penwidth: 2
-            VE: 230
-            A:
+            VE: ${v_ta_m}
+            A|\\'A\\':
                 type: terminal
-                p: ${pa}
+                p: ${pa_ta}
                 payoff: ${v_am}
                 penwidth: 0.5
-            B:
+            B|\\'A\\':
                 type: terminal
-                p: ${pb}
+                p: ${pb_ta}
                 payoff: ${v_bm}
                 penwidth: 0.5
         Não:
             type: chance
-            desc: Doença
+            desc: Resultado
             payoff: -550
             penwidth: 0.5
-            VE: -550
-            A:
+            VE: ${v_ta_nm}
+            A|\\'A\\':
                 type: terminal
-                p: ${pa}
+                p: ${pa_ta}
                 payoff: ${v_anm}
                 penwidth: 0.5
-            B:
+            B|\\'A\\':
                 type: terminal
-                p: ${pb}
+                p: ${pb_ta}
                 payoff: ${v_bnm}
                 penwidth: 0.5
 
-    B:
+    \\'B\\':
         type: decision
         desc: Medicar
-        VE: ${VE}
+        VE: ${VB}
+        p: ${ptb}
         Sim:
             type: chance
-            desc: Doença
-            penwidth: 2
-            VE: 230
-            A:
+            desc: Resultado
+            penwidth: 0.5
+            VE: ${v_tb_m}
+            A|\\'B\\':
                 type: terminal
-                p: ${pa}
+                p: ${pa_tb}
                 payoff: ${v_am}
                 penwidth: 0.5
-            B:
+            B|\\'B\\':
                 type: terminal
-                p: ${pb}
+                p: ${pb_tb}
                 payoff: ${v_bm}
                 penwidth: 0.5
         Não:
             type: chance
-            desc: Doença
+            desc: Resultado
             payoff: -550
-            penwidth: 0.5
-            VE: -550
-            A:
+            penwidth: 2
+            VE: ${v_tb_nm}
+            A|\\'B\\':
                 type: terminal
-                p: ${pa}
+                p: ${pa_tb}
                 payoff: ${v_anm}
                 penwidth: 0.5
-            B:
+            B|\\'B\\':
                 type: terminal
-                p: ${pb}
+                p: ${pb_tb}
                 payoff: ${v_bnm}
                 penwidth: 0.5
-
-
-
-
-
 
 Não:
   type: decision
@@ -403,11 +399,11 @@ GetPenWidth = function(node) {node$penwidth}
 
 # Definir os estilos
 SetEdgeStyle(dados, fontname = 'helvetica', label=GetEdgeLabel, arrowhead=GetArrowHead, penwidth=GetPenWidth, fontsize = 9)
-SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize=T, fontsize = 9)
+SetNodeStyle(dados, fontname = 'helvetica', label = GetNodeLabel, shape = GetNodeShape, fixedsize=T, fontsize = 8)
 # Renderizar a árvore
 arvore <- ToDiagrammeRGraph(dados, direction = "climb") %>%
   set_global_graph_attrs("layout", "dot", "graph") %>%
   add_global_graph_attrs("rankdir", "LR","graph")
-render_graph(arvore, width = 500, height = 700)
+render_graph(arvore, width = 500, height = 500)
 ```
 :::
