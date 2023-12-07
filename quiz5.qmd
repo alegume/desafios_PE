@@ -1,0 +1,57 @@
+---
+title: ""
+format:
+   pdf
+  keep-tex: true
+lang: pt-BR
+---
+
+::: {style="text-align:center"}
+<h1>Probabilidade e Estatística - QUIZ-5</h1>
+:::
+
+![](images/ita.jpg){fig-align="center" width="200"}
+
+::: {style="text-align:center; font-size:20px;"}
+**Instituto Tecnológico de Aeronáutica**
+
+**Professor**: Mauri Aparecido de Oliveira
+
+**Aluno**: Alexandre A. A. M. de Abreu
+:::
+
+## Paciente
+
+Um paciente apresenta um conjunto de sintomas que podem ser enquadrados em dois tipos de doenças, conforme apresentado a seguir.
+
+**DOENÇA A:** Grave. Deve ser medicada senão as consequências são graves. Os remédios provocam efeitos colaterais.\
+**DOENÇA B:** Sem nenhuma gravidade. A cura ocorre naturalmente. Exige apenas repouso.
+
+Se a doença for **A** e medicar, a cura ocorrerá e a este evento associamos um valor de **+5.000**. Entretanto, se não medicar o quadro se complicará e a este evento associamos o valor **--10.000**. A primeira análise da situação conduz a uma probabilidade de **10%** da doença ser **A**. Se a doença for **B** e medicar, aparecerão efeitos colaterais indesejáveis e a este evento associamos o valor **--300**. A não medicar e esperar que os sintomas passem sozinhos associamos o valor **+500**.
+
+------------------------------------------------------------------------
+
+### A) Utilizando o critério do VE, recomende o procedimento a seguir.
+
+Inicialmente, as bibliotecas necessárias são importadas e definem-se os dados para o cálculo do Valor Esperado (VE) e para a criação da árvore de decisão.
+
+```{r}
+#| warning: false
+# Bibliotecas necessárias para criar árvores 
+library(data.tree)
+library(yaml)
+library(dplyr)
+library(usethis)
+library(devtools)
+library(DiagrammeR)
+
+pa <- 0.1       # Probabilidade da doença ser A
+pb <- 0.9       # Probabilidade da doença ser B
+v_am <- 5000    # Valor do evento: doença A e medicar
+v_anm <- -10000 # Valor do evento: doença A e NAO medicar
+v_bm <- -300    # Valor do evento: doença B e medicar
+v_bnm <- 500    # Valor do evento: doença B e NAO medicar
+VE.SIM <- pa * v_am + pb * v_bm
+VE.NAO <- pa * v_anm + pb * v_bnm
+VE = max(VE.SIM, VE.NAO) # Define o VE
+VE
